@@ -3,18 +3,16 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 
-# Dictionary of Ishihara test plates with expected answers
 ishihara_test = {
-    r"C:\Users\ochi7\Downloads\plate_1.jpg": "12",  # Normal vision (Control Plate)
-    r"C:\Users\ochi7\Downloads\plate_2.jpg": "6",   # Protanomaly (Red-Green Weakness)
-    r"C:\Users\ochi7\Downloads\plate_3.jpg": "2",   # Deuteranomaly (Red-Green Weakness)
-    r"C:\Users\ochi7\Downloads\plate_4.jpg": "42",  # Tritanomaly (Blue-Yellow Weakness)
+    r"C:\Users\ochi7\OneDrive\Documents\colorblind test\plate_1.jpg": "12",  # Normal vision (Control Plate)
+    r"C:\Users\ochi7\OneDrive\Documents\colorblind test\plate_2.jpg": "6",   # Protanomaly (Red-Green Weakness)
+    r"C:\Users\ochi7\OneDrive\Documents\colorblind test\plate_3.jpg": "2",   # Deuteranomaly (Red-Green Weakness)
+    r"C:\Users\ochi7\OneDrive\Documents\colorblind test\plate_4.jpg": "42",  # Tritanomaly (Blue-Yellow Weakness)
 }
 
 responses = {}
 
-def show_plate(image_path, root, label, entry, button, panel):
-    """Display the Ishihara plate and ask user for input in the same window."""
+def show_plate(image_path, root, label, entry, button, panel, no_number_button):
     img = Image.open(image_path)
     img = img.resize((300, 300), Image.LANCZOS)
     img = ImageTk.PhotoImage(img)
@@ -25,21 +23,20 @@ def show_plate(image_path, root, label, entry, button, panel):
     entry.delete(0, tk.END)
     
     button.config(command=lambda: save_response(image_path, entry.get(), root))
+    no_number_button.config(command=lambda: save_response(image_path, "No number", root))
 
 def save_response(image_path, response, root):
-    """Save user response and proceed to the next plate."""
     responses[image_path] = response
     plates = list(ishihara_test.keys())
     next_index = plates.index(image_path) + 1
     
     if next_index < len(plates):
-        show_plate(plates[next_index], root, label, entry, button, panel)
+        show_plate(plates[next_index], root, label, entry, button, panel, no_number_button)
     else:
         root.destroy()
         analyze_results()
 
 def analyze_results():
-    """Determine the type of color blindness based on responses and show appropriate color suggestions."""
     issues = []
     
     for plate, expected in ishihara_test.items():
@@ -75,7 +72,9 @@ entry.pack()
 button = tk.Button(root, text="Submit", font=("Arial", 14))
 button.pack()
 
-# Start the test with the first plate
-show_plate(list(ishihara_test.keys())[0], root, label, entry, button, panel)
+no_number_button = tk.Button(root, text="No Number", font=("Arial", 14))
+no_number_button.pack()
+
+show_plate(list(ishihara_test.keys())[0], root, label, entry, button, panel, no_number_button)
 
 root.mainloop()
